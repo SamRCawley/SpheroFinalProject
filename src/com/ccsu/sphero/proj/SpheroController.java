@@ -35,9 +35,16 @@ public class SpheroController extends Activity
     private Button tmpButton;
     private Button powerButton;
     private Button rollButton;
+    private Button arcButton;
     int yaw = 0;
     double distanceTraveled = 0;
     float distanceTarget = 0;
+	int turnsForArc = 0;
+	int turnsComplete = 0;
+	float partLength = 0;
+	String operation = null;
+	boolean isReady = true;
+	int angleDivisorArc = 10;
     /**
      * The Sphero Connection View
      */
@@ -78,14 +85,38 @@ public class SpheroController extends Activity
                             		+lastLocation.getPositionY()*lastLocation.getPositionY());
                             Log.v("Position", "X="+lastLocation.getPositionX()+"    Y="+lastLocation.getPositionY());
                             Log.v("Distance", "Distance Traveled = "+distanceTraveled + " Target = " + distanceTarget);
+                            float distanceRemaining = (float) (distanceTarget-distanceTraveled);
                             
+                            if(distanceTarget > 0 &&  distanceRemaining < 30)
+                            {
+                            	if(speed > distanceRemaining/30)
+                            	{
+                            		float reducedSpeed = distanceRemaining/30;
+                            		RollCommand.sendCommand(mRobot, 0, reducedSpeed);
+                            	}
+                            }
                             if(distanceTarget > 0 && distanceTraveled >= distanceTarget)
                             {
                             	RollCommand.sendStop(mRobot);
                             	Log.v("Stop", "Stop was called, roll complete");
                             	distanceTarget = 0;
                             	distanceTraveled = 0;
+                            	isReady = true;
                             }
+                            
+                            if(operation !=null && operation.equalsIgnoreCase("arc"))
+                            {
+                        		if(distanceTraveled-(partLength*turnsComplete) >= partLength-5 && turnsForArc>turnsComplete)
+                        		{
+                        			Turn(angleDivisorArc);
+                        			turnsComplete++;
+                        			if(turnsComplete==turnsForArc)
+                        			{
+                        				operation = null;
+                        			}
+                        		}
+                            }
+                            
                         }
                     }
                 }
@@ -107,6 +138,8 @@ public class SpheroController extends Activity
         powerButton.setOnClickListener(powerOffListener);
         rollButton = (Button)findViewById(R.id.btnRoll);
         rollButton.setOnClickListener(rollListener);
+        arcButton = (Button)findViewById(R.id.Arc);
+        arcButton.setOnClickListener(arcListener);
         mSpheroConnectionView = (SpheroConnectionView)findViewById(R.id.sphero_connection_view);
         // Set the connection event listener 
         mSpheroConnectionView.setOnRobotConnectionEventListener(new OnRobotConnectionEventListener() {
@@ -154,7 +187,7 @@ public class SpheroController extends Activity
 
 		@Override
 		public void onClick(View btn) {
-			Turn(90);
+			Turn(10);
 		}
     };
     
@@ -175,12 +208,28 @@ public class SpheroController extends Activity
 			mHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                	Roll(.3f, .9f);
+                	Roll(.3f,  .9f);
                 }
             }, 500);
 			
 		}
     };
+    
+    private OnClickListener arcListener = new OnClickListener(){
+
+ 		@Override
+ 		public void onClick(View btn) {
+ 			
+ 			calibrate();
+ 			mHandler.postDelayed(new Runnable() {
+                 @Override
+                 public void run() {
+                 	Arc(.5f, 180, .9f);
+                 }
+             }, 500);
+ 			
+ 		}
+     };
     
     
     /**
@@ -211,8 +260,7 @@ public class SpheroController extends Activity
      */
     public void color(int R, int G, int B)
     {
-            RGBLEDOutputCommand.sendCommand(mRobot, R, G, B);
-        
+            RGBLEDOutputCommand.sendCommand(mRobot, R, G, B);   
     }
 
     /**
@@ -220,9 +268,10 @@ public class SpheroController extends Activity
      * 
      */
     public void Roll(float distance, final float speed){
-    	
+    	isReady=false;
+    	this.speed = speed;
     	distance = distance * 100;
-        RollCommand.sendCommand(mRobot, 0, speed);
+        RollCommand.sendCommand(mRobot, 0, this.speed);
         distanceTarget = distance;
     }
     
@@ -233,6 +282,7 @@ public class SpheroController extends Activity
     public void Turn(int angle)
     {
     	SetHeadingCommand.sendCommand(mRobot, angle);
+    	//ConfigureLocatorCommand.sendCommand(mRobot, 0, 0, 0, yaw);
     }
     
     public void ToggleBackLED()
@@ -258,6 +308,17 @@ public class SpheroController extends Activity
     {
     	ConfigureLocatorCommand.sendCommand(mRobot, 0, 0, 0, yaw);
     	SetHeadingCommand.sendCommand(mRobot, 0);
+    }
+    
+   
+    
+    private void Arc(float radius, int angle, float speed)
+    {	
+    	float length = (float) (angle*Math.PI*radius/180);
+    	turnsForArc = angle/angleDivisorArc;
+    	partLength = 100*length/turnsForArc;
+    	operation = "arc";
+    	Roll(length, speed);   	
     }
     
     private void requestDataStreaming() {
