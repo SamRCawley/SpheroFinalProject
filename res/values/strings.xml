@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Sphero Final</string>
+    <string name="toggleOff">Pos Off</string>
+    <string name="toggleOn">Pos On</string>
+</resources>
