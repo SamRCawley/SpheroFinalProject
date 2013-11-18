@@ -106,7 +106,8 @@ public class SpheroController extends Activity
                             
                             if(operation !=null && operation.equalsIgnoreCase("arc"))
                             {
-                        		if(distanceTraveled-(partLength*turnsComplete) >= partLength-5 && turnsForArc>turnsComplete)
+                            	int delayTolerance = 5;
+                        		if(distanceTraveled-(partLength*turnsComplete) >= partLength-delayTolerance && turnsForArc>turnsComplete)
                         		{
                         			turnsComplete++;
                         			Turn(angleDivisorArc);
