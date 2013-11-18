@@ -314,6 +314,7 @@ public class SpheroController extends Activity
     
     private void Arc(float radius, int angle, float speed)
     {	
+    	turnsComplete = 0;
     	float length = (float) (angle*Math.PI*radius/180);
     	turnsForArc = angle/angleDivisorArc;
     	partLength = 100*length/turnsForArc;
