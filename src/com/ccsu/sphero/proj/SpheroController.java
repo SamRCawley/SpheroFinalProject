@@ -108,8 +108,8 @@ public class SpheroController extends Activity
                             {
                         		if(distanceTraveled-(partLength*turnsComplete) >= partLength-5 && turnsForArc>turnsComplete)
                         		{
-                        			Turn(angleDivisorArc);
                         			turnsComplete++;
+                        			Turn(angleDivisorArc);
                         			if(turnsComplete==turnsForArc)
                         			{
                         				operation = null;
