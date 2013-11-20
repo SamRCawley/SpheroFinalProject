@@ -320,12 +320,12 @@ public class SpheroController extends Activity
     {	
     	partLength = minArcLength;
     	float length = (float) (angle*Math.PI*radius/180);
-    	turnsForArc = (int) (length/minArcLength)+1;  //will result in 1 turn if length > minArcLength
+    	turnsForArc = (int) ((length*100)/minArcLength)+1;  //will result in 1 turn if length > minArcLength
     	anglePart = angle/turnsForArc;
     	operation = "arc";
-    	if(minArcLength > length)  //condition for turns less than 10cm
+    	if(minArcLength > length*100)  //condition for turns less than 10cm
     	{
-    		partLength = length;
+    		partLength = length*100;
     	}
     	Turn(anglePart);   //complete first sub-turn
     	turnsComplete = 1;
