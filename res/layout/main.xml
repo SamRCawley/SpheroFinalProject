@@ -35,7 +35,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="100dp"
-            android:text="Turn90" />
+            android:text="Turn 45" />
 
         
         <Button
@@ -49,7 +49,7 @@
             android:id="@+id/btnRoll"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Roll 1m" />
+            android:text="Roll .3m" />
 
     </LinearLayout>
 

@@ -41,10 +41,11 @@ public class SpheroController extends Activity
     float distanceTarget = 0;
 	int turnsForArc = 0;
 	int turnsComplete = 0;
-	float partLength = 0;
+	int anglePart = 0;
 	String operation = null;
 	boolean isReady = true;
-	int angleDivisorArc = 10;
+	int minArcLength = 10;
+	float partLength = 0;
     /**
      * The Sphero Connection View
      */
@@ -89,14 +90,16 @@ public class SpheroController extends Activity
                             
                             if(distanceTarget > 0 &&  distanceRemaining < 30)
                             {
-                            	if(speed > distanceRemaining/30)
+                            	if(speed > distanceRemaining/30)							//at 30 cm to destination begin slowing down
                             	{
                             		float reducedSpeed = distanceRemaining/30;
-                            		RollCommand.sendCommand(mRobot, 0, reducedSpeed);
+                            		if(reducedSpeed > .2)									   //limit reduced speed to 20% (adjust if necessary)
+                            			RollCommand.sendCommand(mRobot, 0, reducedSpeed);
                             	}
                             }
-                            if(distanceTarget > 0 && distanceTraveled >= distanceTarget)
-                            {
+                            int distanceTolerance = 2;										//2cm tolerance for being at final location
+                            if(distanceTarget > 0 && distanceTraveled >= distanceTarget-distanceTolerance)  //simple logic to stop when distance reached
+                            {																//@todo add additional tolerance logic for "good enough" condition
                             	RollCommand.sendStop(mRobot);
                             	Log.v("Stop", "Stop was called, roll complete");
                             	distanceTarget = 0;
@@ -104,13 +107,13 @@ public class SpheroController extends Activity
                             	isReady = true;
                             }
                             
-                            if(operation !=null && operation.equalsIgnoreCase("arc"))
+                            if(operation !=null && operation.equalsIgnoreCase("arc"))  //Turning logic for arc
                             {
-                            	int delayTolerance = 5;
-                        		if(distanceTraveled-(partLength*turnsComplete) >= partLength-delayTolerance && turnsForArc>turnsComplete)
+                            	int delayTolerance = 7;  //adjustment for how long before turn to start turning
+                        		if(distanceTraveled-(partLength*(turnsComplete-1)) >= partLength-delayTolerance && turnsForArc>turnsComplete)
                         		{
                         			turnsComplete++;
-                        			Turn(angleDivisorArc);
+                        			Turn(anglePart);
                         			if(turnsComplete==turnsForArc)
                         			{
                         				operation = null;
@@ -188,7 +191,7 @@ public class SpheroController extends Activity
 
 		@Override
 		public void onClick(View btn) {
-			Turn(10);
+			Turn(45);
 		}
     };
     
@@ -225,7 +228,7 @@ public class SpheroController extends Activity
  			mHandler.postDelayed(new Runnable() {
                  @Override
                  public void run() {
-                 	Arc(.5f, 180, .9f);
+                 	Arc(.5f, 180, .8f);
                  }
              }, 500);
  			
@@ -315,12 +318,26 @@ public class SpheroController extends Activity
     
     private void Arc(float radius, int angle, float speed)
     {	
-    	turnsComplete = 0;
+    	partLength = minArcLength;
     	float length = (float) (angle*Math.PI*radius/180);
-    	turnsForArc = angle/angleDivisorArc;
-    	partLength = 100*length/turnsForArc;
+    	turnsForArc = (int) (length/minArcLength)+1;  //will result in 1 turn if length > minArcLength
+    	anglePart = angle/turnsForArc;
     	operation = "arc";
-    	Roll(length, speed);   	
+    	if(minArcLength > length)  //condition for turns less than 10cm
+    	{
+    		partLength = length;
+    	}
+    	Turn(anglePart);   //complete first sub-turn
+    	turnsComplete = 1;
+    	final float tempLength = length;  //final vars for runnable
+    	final float tempSpeed = speed;
+    	mHandler.postDelayed(new Runnable() {  //begin roll of for full length distance
+            @Override
+            public void run() {
+            	Roll(tempLength, tempSpeed);
+            }
+        }, 500);
+    	   	
     }
     
     private void requestDataStreaming() {
