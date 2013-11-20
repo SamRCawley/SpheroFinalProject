@@ -44,7 +44,7 @@ public class SpheroController extends Activity
 	int anglePart = 0;
 	String operation = null;
 	boolean isReady = true;
-	int minArcLength = 10;
+	int minArcLength = 20;
 	float partLength = 0;
     /**
      * The Sphero Connection View
@@ -84,8 +84,8 @@ public class SpheroController extends Activity
                             lastLocation = locatorData;
                             distanceTraveled = Math.sqrt(lastLocation.getPositionX()*lastLocation.getPositionX()
                             		+lastLocation.getPositionY()*lastLocation.getPositionY());
-                            Log.v("Position", "X="+lastLocation.getPositionX()+"    Y="+lastLocation.getPositionY());
-                            Log.v("Distance", "Distance Traveled = "+distanceTraveled + " Target = " + distanceTarget);
+                            //Log.v("Position", "X="+lastLocation.getPositionX()+"    Y="+lastLocation.getPositionY());
+                            //Log.v("Distance", "Distance Traveled = "+distanceTraveled + " Target = " + distanceTarget);
                             float distanceRemaining = (float) (distanceTarget-distanceTraveled);
                             
                             if(distanceTarget > 0 &&  distanceRemaining < 30)
@@ -109,8 +109,8 @@ public class SpheroController extends Activity
                             
                             if(operation !=null && operation.equalsIgnoreCase("arc"))  //Turning logic for arc
                             {
-                            	int delayTolerance = 7;  //adjustment for how long before turn to start turning
-                        		if(distanceTraveled-(partLength*(turnsComplete-1)) >= partLength-delayTolerance && turnsForArc>turnsComplete)
+                              
+                        		if(distanceTraveled-(partLength*(turnsComplete-1)) >= partLength && turnsForArc>turnsComplete)
                         		{
                         			turnsComplete++;
                         			Turn(anglePart);
@@ -228,7 +228,7 @@ public class SpheroController extends Activity
  			mHandler.postDelayed(new Runnable() {
                  @Override
                  public void run() {
-                 	Arc(.5f, 180, .8f);
+                 	Arc(.5f, 180, .3f);
                  }
              }, 500);
  			
@@ -318,10 +318,13 @@ public class SpheroController extends Activity
     
     private void Arc(float radius, int angle, float speed)
     {	
+    	calibrate();
     	partLength = minArcLength;
     	float length = (float) (angle*Math.PI*radius/180);
     	turnsForArc = (int) ((length*100)/minArcLength)+1;  //will result in 1 turn if length > minArcLength
     	anglePart = angle/turnsForArc;
+    	Log.v("ANGLE of ARC", " "+anglePart);
+    	Log.v("Turns for Arc", " "+turnsForArc);
     	operation = "arc";
     	if(minArcLength > length*100)  //condition for turns less than 10cm
     	{
