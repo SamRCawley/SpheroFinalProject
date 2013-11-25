@@ -2,13 +2,13 @@ package com.ccsu.sphero.proj;
 
 import java.io.*;
 
-public class SourceFile {
+import android.app.Activity;
+
+public class SourceFile extends Activity{
   public BufferedReader openFile(){
     String fileName="";
     BufferedReader inFile=null;
-    BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in));
-    System.out.print("Source file = ");
-    System.out.flush();
+    BufferedReader stdin = new BufferedReader(new InputStreamReader(this.getResources().openRawResource(R.raw.test)));
     try{
       fileName = stdin.readLine();
       inFile = new BufferedReader(new FileReader(fileName));
