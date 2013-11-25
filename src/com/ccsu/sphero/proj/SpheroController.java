@@ -285,6 +285,8 @@ public class SpheroController extends Activity
      */
     public void Turn(int angle)
     {
+    	int adjustment = 3; //adjustment for angle loss occurring
+    	angle += adjustment;
     	SetHeadingCommand.sendCommand(mRobot, angle);
     	//ConfigureLocatorCommand.sendCommand(mRobot, 0, 0, 0, yaw);
     }
