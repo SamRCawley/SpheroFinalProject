@@ -43,9 +43,31 @@ public class SpheroController
     	this.yaw = yaw;
     }
     
+    public void runCommands()
+    {
+    	//If color change is next command, execute immediately
+    	if(isReady)
+    	{
+    		//logic to select next command from array depending on how that is formatted
+    	}
+    	mHandler.postDelayed(new Runnable() {  //delay and loop
+            @Override
+            public void run() {
+            	runCommands();
+            }
+        }, 50);
+    }
+    
     public void updateLastLocation(LocatorData location)
     {
         lastLocation = location;
+        if(!isReady)
+        	distanceLogic();
+
+    }
+    
+    private void distanceLogic()
+    {
         distanceTraveled = Math.sqrt(lastLocation.getPositionX()*lastLocation.getPositionX()
         		+lastLocation.getPositionY()*lastLocation.getPositionY());
         //Log.v("Position", "X="+lastLocation.getPositionX()+"    Y="+lastLocation.getPositionY());
@@ -113,9 +135,17 @@ public class SpheroController
      */
     public void Turn(int angle)
     {
+    	final boolean oldStatus = isReady;
+    	isReady = false;
     	int adjustment = 3; //adjustment for angle loss occurring
     	angle += adjustment;
     	SetHeadingCommand.sendCommand(mRobot, angle);
+    	mHandler.postDelayed(new Runnable() {  //delay and loop
+            @Override
+            public void run() {
+            	isReady = oldStatus;
+            }
+        }, 100);
     	//ConfigureLocatorCommand.sendCommand(mRobot, 0, 0, 0, yaw);
     }
     
@@ -128,6 +158,7 @@ public class SpheroController
     
     public void Arc(float radius, int angle, float speed)
     {	
+    	isReady = false;
     	calibrate();
     	partLength = minArcLength;
     	float length = (float) (angle*Math.PI*radius/180);
