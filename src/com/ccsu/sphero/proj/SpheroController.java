@@ -1,5 +1,12 @@
 package com.ccsu.sphero.proj;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 
@@ -184,5 +191,36 @@ public class SpheroController
     	   	
     }
     
+    public void runScript(Context context)
+    {
+    	try{
+	    	BufferedReader br = openfile(context);
+	    	Parser p = new Parser();
+	    	p.parse(br);
+	    	//is valid
+	    	
+    	}
+    	catch(Exception e){
+    		//YAR
+    	}
+    	
+    }
+    	private BufferedReader openfile(Context context)
+    	{
+	    	String fileName="";
+		    BufferedReader inFile=null;
+		    BufferedReader stdin = new BufferedReader(new InputStreamReader(context.getResources().openRawResource(R.raw.test)));
+		    try{
+		      fileName = stdin.readLine();
+		      inFile = new BufferedReader(new FileReader(fileName));
+		    }
+		    catch(FileNotFoundException e){
+		      System.out.println("The source file " + fileName + " was not found.");
+		    }
+		    catch(IOException e){
+		      System.out.println(e);
+		    }
+		    return inFile;
+	 }
 }
 
