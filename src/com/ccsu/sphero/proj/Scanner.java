@@ -86,13 +86,13 @@ public class Scanner{
           {
               while(isLetter(currentChar))
                   takeIt();
-              if(currentSpelling.toString().equals("Color"))
+              if(currentSpelling.toString().equalsIgnoreCase("Color"))
                   return Token.COLOR;
-              else if(currentSpelling.toString().equals("Roll"))
+              else if(currentSpelling.toString().equalsIgnoreCase("Roll"))
                   return Token.ROLL;
-              else if(currentSpelling.toString().equals("Turn"))
+              else if(currentSpelling.toString().equalsIgnoreCase("Turn"))
                   return Token.TURN;
-              else if(currentSpelling.toString().equals("Arc"))
+              else if(currentSpelling.toString().equalsIgnoreCase("Arc"))
                   return Token.ARC;
               else
                   return Token.EOT;

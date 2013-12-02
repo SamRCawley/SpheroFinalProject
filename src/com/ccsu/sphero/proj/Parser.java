@@ -1,5 +1,7 @@
 package com.ccsu.sphero.proj;
 
+import java.io.BufferedReader;
+
 public class Parser{
   private Token currentToken;
   Scanner scanner;
@@ -29,9 +31,8 @@ public class Parser{
     currentToken = scanner.scan();
   }
 
-  public void parse() {
-    SourceFile sourceFile = new SourceFile();
-    scanner = new Scanner(sourceFile.openFile());
+  public void parse(BufferedReader infile) {
+    scanner = new Scanner(infile);
     parseScript();
     if (currentToken.kind != Token.EOT)
       new Error("Syntax error: Redundant characters at the end of program.",
@@ -40,10 +41,8 @@ public class Parser{
 
   private void parseScript() 
   {
-      System.out.println("<begin script>");
       currentToken = scanner.scan();
       parseStatements();
-      System.out.println("<end script>");
       
   }
 
@@ -81,32 +80,25 @@ public class Parser{
   private void parseColor()
   {
       accept(Token.COLOR);
-      accept(Token.LPAREN);
       for(int i = 0; i < 3; i++)
       {
           int color = Integer.parseInt(currentToken.spelling);
           if(color >= 0 && color <=255)
           {
             accept(Token.NUMBER);
-            if(i < 2)
-                accept(Token.COMMA);
           }
           else
             new Error("Parameter Error " + currentToken.spelling + " is not expected.", currentToken.line);
       }
-      accept(Token.RPAREN);
-      accept(Token.SEMI);
    }
    
    private void parseRoll()
    {
       accept(Token.ROLL);
-      accept(Token.LPAREN);
       float distance = Float.parseFloat(currentToken.spelling);
       if(distance >= 0)
       {
          accept(Token.NUMBER);
-         accept(Token.COMMA);
       }
       else
          new Error("Parameter Error " + currentToken.spelling + " is not expected.", currentToken.line);
@@ -117,30 +109,23 @@ public class Parser{
       }
       else
          new Error("Parameter Error " + currentToken.spelling + " is not expected.", currentToken.line);
-      accept(Token.RPAREN);
-      accept(Token.SEMI);
    }
    
    private void parseTurn()
    {
       accept(Token.TURN);
-      accept(Token.LPAREN);
       int angle = Integer.parseInt(currentToken.spelling);
       if(angle <=360 && angle >=-360)
         accept(Token.NUMBER);
-      accept(Token.RPAREN);
-      accept(Token.SEMI);
    }
    
    private void parseArc()
    {
       accept(Token.ARC);
-      accept(Token.LPAREN);
       float radius = Float.parseFloat(currentToken.spelling);
       if(radius >= 0)
       {
          accept(Token.NUMBER);
-         accept(Token.COMMA);
       }
       else
          new Error("Parameter Error " + currentToken.spelling + " is not expected.", currentToken.line);
@@ -148,7 +133,6 @@ public class Parser{
       if(angle <=360 && angle >=-360)
       {
          accept(Token.NUMBER);
-         accept(Token.COMMA);
       }
       else
          new Error("Parameter Error " + currentToken.spelling + " is not expected.", currentToken.line);
@@ -159,7 +143,5 @@ public class Parser{
       }
       else
          new Error("Parameter Error " + currentToken.spelling + " is not expected.", currentToken.line);
-      accept(Token.RPAREN);
-      accept(Token.SEMI);
    }
 }
