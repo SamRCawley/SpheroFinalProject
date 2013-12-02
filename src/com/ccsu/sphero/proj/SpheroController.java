@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 import android.content.Context;
 import android.os.Handler;
@@ -33,6 +34,7 @@ public class SpheroController
 	boolean isReady = true;
 	int minArcLength = 20;
 	float partLength = 0;
+	ArrayList<String[]> commandList = new ArrayList<String[]>();
     /**
      * The Sphero Connection View
      */
@@ -197,8 +199,13 @@ public class SpheroController
 	    	BufferedReader br = openfile(context);
 	    	Parser p = new Parser();
 	    	p.parse(br);
-	    	//is valid
-	    	
+	    	//is checked valid due to parser throwing errors
+	    	br = openfile(context);
+	    	String command;
+	    	while((command = br.readLine()) != null){
+	    		String commandParams[] = command.split(" ");
+	    		commandList.add(commandParams);
+	    	}
     	}
     	catch(Exception e){
     		//YAR
