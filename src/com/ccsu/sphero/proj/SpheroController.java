@@ -127,7 +127,12 @@ public class SpheroController
         	Log.v("Stop", "Stop was called, roll complete");
         	distanceTarget = 0;
         	distanceTraveled = 0;
-        	isReady = true;
+        	mHandler.postDelayed(new Runnable() {  //delay and loop
+                @Override
+                public void run() {
+                	isReady = true;
+                }
+            }, 1000);
         }
         
         if(operation !=null && operation.equalsIgnoreCase("arc"))  //Turning logic for arc
@@ -182,7 +187,7 @@ public class SpheroController
             public void run() {
             	isReady = oldStatus;
             }
-        }, 100);
+        }, 1000);
     	//ConfigureLocatorCommand.sendCommand(mRobot, 0, 0, 0, yaw);
     }
     
