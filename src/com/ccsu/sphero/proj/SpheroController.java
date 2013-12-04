@@ -72,13 +72,30 @@ public class SpheroController
     		if(nextCommand.equalsIgnoreCase("arc"))
     		{
     			calibrate();
-    			Arc(Float.parseFloat(commandList.get(0)[1]), Integer.parseInt(commandList.get(0)[2]), Float.parseFloat(commandList.get(0)[3]));
+    			final float radius = Float.parseFloat(commandList.get(0)[1]);
+    			final int angle = Integer.parseInt(commandList.get(0)[2]);
+    			final float speed = Float.parseFloat(commandList.get(0)[3]);
+    			isReady = false;
+    			mHandler.postDelayed(new Runnable() {  //delay for calibration
+    	            @Override
+    	            public void run() {
+    	            	Arc(radius, angle, speed);
+    	            }
+    	        }, 1000);
     			commandList.remove(0);
     		}
     		else if(nextCommand.equalsIgnoreCase("roll"))
     		{
+    			final float distance = Float.parseFloat(commandList.get(0)[1]);
+    			final float speed = Float.parseFloat(commandList.get(0)[2]);
     			calibrate();
-    			Roll(Float.parseFloat(commandList.get(0)[1]), Float.parseFloat(commandList.get(0)[2]));
+    			isReady = false;
+    			mHandler.postDelayed(new Runnable() {  //delay for calibration
+    	            @Override
+    	            public void run() {
+    	            	Roll(distance, speed);
+    	            }
+    	        }, 1000);
     			commandList.remove(0);
     		}
     		else if(nextCommand.equalsIgnoreCase("turn"))
@@ -98,8 +115,7 @@ public class SpheroController
     public void updateLastLocation(LocatorData location)
     {
         lastLocation = location;
-        if(!isReady)
-        	distanceLogic();
+        distanceLogic();
 
     }
     
@@ -169,6 +185,7 @@ public class SpheroController
     	distance = distance * 100;
         RollCommand.sendCommand(mRobot, 0, this.speed);
         distanceTarget = distance;
+        distanceTraveled = 0;
     }
     
     /**
