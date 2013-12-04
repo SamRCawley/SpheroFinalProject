@@ -48,6 +48,8 @@ public class ProjectView extends Activity
     public EditText etURI;
     public Button getURL;
     public TextView tvErrors;
+    public Button btnSave;
+    public Button btnLoad;
     /**
      * The Sphero Connection View
      */
@@ -108,6 +110,10 @@ public class ProjectView extends Activity
         getURL = (Button) findViewById(R.id.btnGetURL);
         getURL.setOnClickListener(URLButtonListener);
         tvErrors = (TextView) findViewById(R.id.tvErrors);
+        btnSave = (Button) findViewById(R.id.btnSave);
+        btnSave.setOnClickListener(btnSaveListener);
+        btnLoad = (Button) findViewById(R.id.btnLoad);
+        btnLoad.setOnClickListener(btnLoadListener);
         mSpheroConnectionView = (SpheroConnectionView)findViewById(R.id.sphero_connection_view);
         // Set the connection event listener 
         mSpheroConnectionView.setOnRobotConnectionEventListener(new OnRobotConnectionEventListener() {
@@ -207,7 +213,7 @@ public class ProjectView extends Activity
 
 		@Override
 		public void onClick(View btn) {
-			spheroController.runScript(getApplicationContext(), etScript.getText().toString(), tvErrors, mRobot);
+			spheroController.runScript(etScript.getText().toString(), tvErrors, mRobot);
 		}
     };
     
@@ -218,39 +224,25 @@ public class ProjectView extends Activity
 			SleepCommand.sendCommand(mRobot, 0, 0);
 		}
     };
-    
-    private OnClickListener rollListener = new OnClickListener(){
+   
+    private OnClickListener btnSaveListener = new OnClickListener(){
 
 		@Override
-		public void onClick(View btn) {
-			
-			spheroController.calibrate();
-			mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                	spheroController.Roll(.3f,  .9f);
-                }
-            }, 500);
-			
+		public void onClick(View arg0) {
+			spheroController.saveScript(getApplicationContext(), etScript.getText().toString());
 		}
+    	
     };
     
-    private OnClickListener arcListener = new OnClickListener(){
+    private OnClickListener btnLoadListener = new OnClickListener(){
 
- 		@Override
- 		public void onClick(View btn) {
- 			
- 			spheroController.calibrate();
- 			mHandler.postDelayed(new Runnable() {
-                 @Override
-                 public void run() {
-                 	spheroController.Arc(.5f, 180, .3f);
-                 }
-             }, 500);
- 			
- 		}
-     };
-    
+		@Override
+		public void onClick(View arg0) {
+			String script = spheroController.loadScript(getApplicationContext());
+			etScript.setText(script);
+		}
+    	
+    };
     
     /**
      * Called when the user comes back to this app

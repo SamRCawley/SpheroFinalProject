@@ -6,4 +6,6 @@
     <string name="getURL">Get URL</string>
     <string name="runScript">Run Script</string>
     <string name="powerOff">Power Off</string>
+    <string name="SaveScript">Save Script</string>
+    <string name="LoadScript">Load Script</string>
 </resources>

@@ -2,14 +2,13 @@ package com.ccsu.sphero.proj;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.TextView;
@@ -38,6 +37,9 @@ public class SpheroController
 	int minArcLength = 20;
 	float partLength = 0;
 	ArrayList<String[]> commandList = new ArrayList<String[]>();
+	SharedPreferences mySharedPrefs;
+	private String saveKey = "savedScript";
+	private String prefsName = "SpheroProject";
     /**
      * The Sphero Connection View
      */
@@ -219,7 +221,7 @@ public class SpheroController
     	   	
     }
     
-    public void runScript(Context context, String script, TextView tvErrors, Robot mRobot)
+    public void runScript(String script, TextView tvErrors, Robot mRobot)
     {
     	this.mRobot = mRobot;
     	tvErrors.setText(" ");
@@ -230,8 +232,10 @@ public class SpheroController
 	    	Parser p = new Parser();
 	    	p.parse(br);
 	    	//is checked valid due to parser throwing errors
-	    	br = openfile(context);
+	    	//br = openfile(context);
 	    	String command;
+	    	is = new ByteArrayInputStream(script.getBytes());
+    		br = new BufferedReader(new InputStreamReader(is));
 	    	while((command = br.readLine()) != null){
 	    		String commandParams[] = command.split(" ");
 	    		commandList.add(commandParams);
@@ -243,22 +247,21 @@ public class SpheroController
     	}
     	
     }
-    	private BufferedReader openfile(Context context)
-    	{
-	    	String fileName="";
-		    BufferedReader inFile=null;
-		    BufferedReader stdin = new BufferedReader(new InputStreamReader(context.getResources().openRawResource(R.raw.test)));
-		    try{
-		      fileName = stdin.readLine();
-		      inFile = new BufferedReader(new FileReader(fileName));
-		    }
-		    catch(FileNotFoundException e){
-		      System.out.println("The source file " + fileName + " was not found.");
-		    }
-		    catch(IOException e){
-		      System.out.println(e);
-		    }
-		    return inFile;
-	 }
+   
+    public void saveScript(Context context, String script)
+    {
+    	mySharedPrefs = context.getSharedPreferences(prefsName, Activity.MODE_PRIVATE);
+    	SharedPreferences.Editor out = mySharedPrefs.edit();
+		out.putString(saveKey, script);
+		out.commit();
+    }
+    
+    public String loadScript(Context context)
+    {
+    	String savedScript = "";
+    	mySharedPrefs = context.getSharedPreferences(prefsName, Activity.MODE_PRIVATE);
+    	savedScript = mySharedPrefs.getString(saveKey, "error");
+    	return savedScript;
+    }
 }
 
