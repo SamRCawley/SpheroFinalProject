@@ -127,7 +127,7 @@ public class SpheroController
         //Log.v("Distance", "Distance Traveled = "+distanceTraveled + " Target = " + distanceTarget);
         float distanceRemaining = (float) (distanceTarget-distanceTraveled);
         
-        if(distanceTarget > 0 &&  distanceRemaining < 30)
+        if(distanceTarget > .01 &&  distanceRemaining < 30)
         {
         	if(speed > distanceRemaining/30)							//at 30 cm to destination begin slowing down
         	{
@@ -137,7 +137,7 @@ public class SpheroController
         	}
         }
         int distanceTolerance = 2;										//2cm tolerance for being at final location
-        if(distanceTarget > 0 && distanceTraveled >= distanceTarget-distanceTolerance)  //simple logic to stop when distance reached
+        if(distanceTarget > .01 && distanceTraveled >= distanceTarget-distanceTolerance)  //simple logic to stop when distance reached
         {																//@todo add additional tolerance logic for "good enough" condition
         	RollCommand.sendStop(mRobot);
         	Log.v("Stop", "Stop was called, roll complete");
@@ -185,7 +185,6 @@ public class SpheroController
     	distance = distance * 100;
         RollCommand.sendCommand(mRobot, 0, this.speed);
         distanceTarget = distance;
-        distanceTraveled = 0;
     }
     
     /**
