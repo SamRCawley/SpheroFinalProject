@@ -1,5 +1,14 @@
 package com.ccsu.sphero.proj;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.List;
 
 import com.ccsu.sphero.proj.R;
@@ -11,6 +20,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import orbotix.robot.base.*;
 import orbotix.robot.sensor.AttitudeData;
@@ -31,10 +42,12 @@ public class ProjectView extends Activity
     private Robot mRobot;
     boolean ledOn = false;
     public Button ledToggle;
-    public Button tmpButton;
+    public Button scriptButton;
     public Button powerButton;
-    public Button rollButton;
-    public Button arcButton;
+    public EditText etScript;
+    public EditText etURI;
+    public Button getURL;
+    public TextView tvErrors;
     /**
      * The Sphero Connection View
      */
@@ -86,14 +99,15 @@ public class ProjectView extends Activity
         setContentView(R.layout.main);
         ledToggle = (Button)findViewById(R.id.btnLEDToggle);
         ledToggle.setOnClickListener(ledToggleListener);
-        tmpButton = (Button)findViewById(R.id.tmpButton);
-        tmpButton.setOnClickListener(tmpListener);
+        scriptButton = (Button)findViewById(R.id.btnRunScript);
+        scriptButton.setOnClickListener(scriptListener);
         powerButton = (Button)findViewById(R.id.btnPowerOff);
         powerButton.setOnClickListener(powerOffListener);
-        rollButton = (Button)findViewById(R.id.btnRoll);
-        rollButton.setOnClickListener(rollListener);
-        arcButton = (Button)findViewById(R.id.Arc);
-        arcButton.setOnClickListener(arcListener);
+        etURI = (EditText) findViewById(R.id.etURI);
+        etScript = (EditText) findViewById(R.id.etScript);
+        getURL = (Button) findViewById(R.id.btnGetURL);
+        getURL.setOnClickListener(URLButtonListener);
+        tvErrors = (TextView) findViewById(R.id.tvErrors);
         mSpheroConnectionView = (SpheroConnectionView)findViewById(R.id.sphero_connection_view);
         // Set the connection event listener 
         mSpheroConnectionView.setOnRobotConnectionEventListener(new OnRobotConnectionEventListener() {
@@ -137,6 +151,39 @@ public class ProjectView extends Activity
 		}
     };
     
+    private OnClickListener URLButtonListener = new OnClickListener() {
+    	public void onClick(View v) {
+    		String strURL = etURI.getText().toString();
+    		etScript.setText("");
+    		try {
+				URL url = new URL(strURL);
+				
+				URLConnection connection = url.openConnection();
+				HttpURLConnection httpConnection = (HttpURLConnection)connection;
+				int responseCode = httpConnection.getResponseCode();
+				if(responseCode == HttpURLConnection.HTTP_OK){
+					InputStream in = new BufferedInputStream(httpConnection.getInputStream());
+					BufferedReader r = new BufferedReader(new InputStreamReader(in));
+					String line;
+					String webText = "";
+					while((line = r.readLine())!=null)
+					{
+						webText += line + "\n";
+					}
+					etScript.setText(webText);
+					in.close();
+				}
+				else
+					etScript.setText("HTTP error " + httpConnection.getResponseCode());
+			} catch (MalformedURLException e) {
+				tvErrors.setText("<<<Malformed URL Exception>>>");
+			} catch (IOException e) {
+				tvErrors.setText("<<<IO Exception>>>");
+			}
+    		
+    	}
+    };
+    
     public void ToggleBackLED()
     {
     	if(!ledOn)
@@ -150,17 +197,17 @@ public class ProjectView extends Activity
     	{
     		spheroController.calibrate();
     		StabilizationCommand.sendCommand(mRobot, true);
-    		BackLEDOutputCommand.sendCommand(mRobot, 1.0f);
+    		BackLEDOutputCommand.sendCommand(mRobot, 0f);
     		ledOn = false;
     		ledToggle.setText(R.string.toggleOn);
     	}
     }
     
-    private OnClickListener tmpListener = new OnClickListener(){
+    private OnClickListener scriptListener = new OnClickListener(){
 
 		@Override
 		public void onClick(View btn) {
-			spheroController.Turn(45);
+			spheroController.runScript(getApplicationContext(), etScript.getText().toString(), tvErrors);
 		}
     };
     

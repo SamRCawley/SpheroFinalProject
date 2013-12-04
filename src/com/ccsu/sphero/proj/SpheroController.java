@@ -1,15 +1,18 @@
 package com.ccsu.sphero.proj;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
+import android.widget.TextView;
 
 import orbotix.robot.base.*;
 
@@ -54,10 +57,33 @@ public class SpheroController
     
     public void runCommands()
     {
-    	//If color change is next command, execute immediately
-    	if(isReady)
+    	if(commandList.size()==0)
+    		return;
+    	String nextCommand = commandList.get(0)[0];
+    	if(nextCommand.equalsIgnoreCase("color"))
     	{
-    		//logic to select next command from array depending on how that is formatted
+    		color(Integer.parseInt(commandList.get(0)[1]), Integer.parseInt(commandList.get(0)[2]), Integer.parseInt(commandList.get(0)[3]));
+    		commandList.remove(0);
+    	}
+    	else if(isReady)
+    	{
+    		if(nextCommand.equalsIgnoreCase("arc"))
+    		{
+    			calibrate();
+    			Arc(Float.parseFloat(commandList.get(0)[1]), Integer.parseInt(commandList.get(0)[2]), Float.parseFloat(commandList.get(0)[3]));
+    			commandList.remove(0);
+    		}
+    		else if(nextCommand.equalsIgnoreCase("roll"))
+    		{
+    			calibrate();
+    			Roll(Float.parseFloat(commandList.get(0)[1]), Float.parseFloat(commandList.get(0)[2]));
+    			commandList.remove(0);
+    		}
+    		else if(nextCommand.equalsIgnoreCase("turn"))
+    		{
+    			Turn(Integer.parseInt(commandList.get(0)[1]));
+    			commandList.remove(0);
+    		}
     	}
     	mHandler.postDelayed(new Runnable() {  //delay and loop
             @Override
@@ -193,10 +219,13 @@ public class SpheroController
     	   	
     }
     
-    public void runScript(Context context)
+    public void runScript(Context context, String script, TextView tvErrors)
     {
+    	tvErrors.setText(" ");
     	try{
-	    	BufferedReader br = openfile(context);
+	    	//BufferedReader br = openfile(context);
+    		InputStream is = new ByteArrayInputStream(script.getBytes());
+    		BufferedReader br = new BufferedReader(new InputStreamReader(is));
 	    	Parser p = new Parser();
 	    	p.parse(br);
 	    	//is checked valid due to parser throwing errors
@@ -206,9 +235,10 @@ public class SpheroController
 	    		String commandParams[] = command.split(" ");
 	    		commandList.add(commandParams);
 	    	}
+	    	runCommands();
     	}
     	catch(Exception e){
-    		//YAR
+    		tvErrors.setText(e.toString());
     	}
     	
     }

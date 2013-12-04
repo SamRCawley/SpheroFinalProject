@@ -3,4 +3,7 @@
     <string name="app_name">Sphero Final</string>
     <string name="toggleOff">Pos Off</string>
     <string name="toggleOn">Pos On</string>
+    <string name="getURL">Get URL</string>
+    <string name="runScript">Run Script</string>
+    <string name="powerOff">Power Off</string>
 </resources>
