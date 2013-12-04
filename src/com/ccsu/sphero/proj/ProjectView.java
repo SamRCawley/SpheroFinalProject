@@ -207,7 +207,7 @@ public class ProjectView extends Activity
 
 		@Override
 		public void onClick(View btn) {
-			spheroController.runScript(getApplicationContext(), etScript.getText().toString(), tvErrors);
+			spheroController.runScript(getApplicationContext(), etScript.getText().toString(), tvErrors, mRobot);
 		}
     };
     

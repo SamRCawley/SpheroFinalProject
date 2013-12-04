@@ -219,8 +219,9 @@ public class SpheroController
     	   	
     }
     
-    public void runScript(Context context, String script, TextView tvErrors)
+    public void runScript(Context context, String script, TextView tvErrors, Robot mRobot)
     {
+    	this.mRobot = mRobot;
     	tvErrors.setText(" ");
     	try{
 	    	//BufferedReader br = openfile(context);
