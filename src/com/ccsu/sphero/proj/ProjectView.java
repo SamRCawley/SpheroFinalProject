@@ -50,6 +50,7 @@ public class ProjectView extends Activity
     public TextView tvErrors;
     public Button btnSave;
     public Button btnLoad;
+    public Button btnKillCommand;
     /**
      * The Sphero Connection View
      */
@@ -114,6 +115,8 @@ public class ProjectView extends Activity
         btnSave.setOnClickListener(btnSaveListener);
         btnLoad = (Button) findViewById(R.id.btnLoad);
         btnLoad.setOnClickListener(btnLoadListener);
+        btnKillCommand = (Button) findViewById(R.id.btnKillCommand);
+        btnKillCommand.setOnClickListener(btnKillCommandListener);
         mSpheroConnectionView = (SpheroConnectionView)findViewById(R.id.sphero_connection_view);
         // Set the connection event listener 
         mSpheroConnectionView.setOnRobotConnectionEventListener(new OnRobotConnectionEventListener() {
@@ -240,6 +243,15 @@ public class ProjectView extends Activity
 		public void onClick(View arg0) {
 			String script = spheroController.loadScript(getApplicationContext());
 			etScript.setText(script);
+		}
+    	
+    };
+    
+    private OnClickListener btnKillCommandListener = new OnClickListener(){
+
+		@Override
+		public void onClick(View arg0) {
+			spheroController.sendKillCommand();
 		}
     	
     };

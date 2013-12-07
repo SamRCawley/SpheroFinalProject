@@ -8,4 +8,5 @@
     <string name="powerOff">Power Off</string>
     <string name="SaveScript">Save Script</string>
     <string name="LoadScript">Load Script</string>
+    <string name="KillCommand">Stop Script</string>
 </resources>

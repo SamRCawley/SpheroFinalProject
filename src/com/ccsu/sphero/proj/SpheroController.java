@@ -40,6 +40,7 @@ public class SpheroController
 	SharedPreferences mySharedPrefs;
 	private String saveKey = "savedScript";
 	private String prefsName = "SpheroProject";
+	boolean killCommand = false;
     /**
      * The Sphero Connection View
      */
@@ -59,19 +60,29 @@ public class SpheroController
     
     public void runCommands()
     {
-    	if(commandList.size()==0)
+    	if(commandList.size()==0 || killCommand)
+    	{
+    		Log.v("KILL", "Terminating with killCommand = " + killCommand);
     		return;
+    	}
     	String nextCommand = commandList.get(0)[0];
     	if(nextCommand.equalsIgnoreCase("color"))
     	{
+    		Log.v("Command", "color");
     		color(Integer.parseInt(commandList.get(0)[1]), Integer.parseInt(commandList.get(0)[2]), Integer.parseInt(commandList.get(0)[3]));
     		commandList.remove(0);
     	}
-    	else if(isReady)
+    	else if (isReady && distanceTraveled>1)
+    	{
+    		calibrate();
+    		Log.v("CALIBRATING", "Spero is ready and trying to calibrate with location x: " + lastLocation.getPositionX() + " y: " + lastLocation.getPositionY());
+    	}
+    	else if(isReady&&distanceTraveled<1)
     	{
     		if(nextCommand.equalsIgnoreCase("arc"))
     		{
-    			calibrate();
+    			Log.v("Command", "Arc Begin");
+    			calibrate(); //calibrate for "straight" direction if previous command was turn
     			final float radius = Float.parseFloat(commandList.get(0)[1]);
     			final int angle = Integer.parseInt(commandList.get(0)[2]);
     			final float speed = Float.parseFloat(commandList.get(0)[3]);
@@ -86,9 +97,10 @@ public class SpheroController
     		}
     		else if(nextCommand.equalsIgnoreCase("roll"))
     		{
+    			Log.v("Command", "Roll begin");
+    			calibrate(); //calibrate for "straight" direction if previous command was turn
     			final float distance = Float.parseFloat(commandList.get(0)[1]);
     			final float speed = Float.parseFloat(commandList.get(0)[2]);
-    			calibrate();
     			isReady = false;
     			mHandler.postDelayed(new Runnable() {  //delay for calibration
     	            @Override
@@ -100,6 +112,7 @@ public class SpheroController
     		}
     		else if(nextCommand.equalsIgnoreCase("turn"))
     		{
+    			Log.v("Command", "Turn begin");
     			Turn(Integer.parseInt(commandList.get(0)[1]));
     			commandList.remove(0);
     		}
@@ -127,17 +140,18 @@ public class SpheroController
         //Log.v("Distance", "Distance Traveled = "+distanceTraveled + " Target = " + distanceTarget);
         float distanceRemaining = (float) (distanceTarget-distanceTraveled);
         
-        if(distanceTarget > .01 &&  distanceRemaining < 30)
+        if(distanceTarget > 1 &&  distanceRemaining < 30)
         {
         	if(speed > distanceRemaining/30)							//at 30 cm to destination begin slowing down
         	{
+        		Log.v("CALIBRATING", "Reducing speed because distanceRemaining: " + distanceRemaining);
         		float reducedSpeed = distanceRemaining/30;
         		if(reducedSpeed > .2)									   //limit reduced speed to 20% (adjust if necessary)
         			RollCommand.sendCommand(mRobot, 0, reducedSpeed);
         	}
         }
         int distanceTolerance = 2;										//2cm tolerance for being at final location
-        if(distanceTarget > .01 && distanceTraveled >= distanceTarget-distanceTolerance)  //simple logic to stop when distance reached
+        if(distanceTarget > 1 && distanceTraveled >= distanceTarget-distanceTolerance)  //simple logic to stop when distance reached
         {																//@todo add additional tolerance logic for "good enough" condition
         	RollCommand.sendStop(mRobot);
         	Log.v("Stop", "Stop was called, roll complete");
@@ -202,6 +216,7 @@ public class SpheroController
             @Override
             public void run() {
             	isReady = oldStatus;
+            	Log.v("command", "Turn returning status to = " + isReady);
             }
         }, 1000);
     	//ConfigureLocatorCommand.sendCommand(mRobot, 0, 0, 0, yaw);
@@ -261,6 +276,7 @@ public class SpheroController
 	    		String commandParams[] = command.split(" ");
 	    		commandList.add(commandParams);
 	    	}
+	    	killCommand = false;
 	    	runCommands();
     	}
     	catch(Exception e){
@@ -283,6 +299,11 @@ public class SpheroController
     	mySharedPrefs = context.getSharedPreferences(prefsName, Activity.MODE_PRIVATE);
     	savedScript = mySharedPrefs.getString(saveKey, "error");
     	return savedScript;
+    }
+    
+    public void sendKillCommand()
+    {
+    	killCommand = true;
     }
 }
 
