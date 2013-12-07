@@ -60,11 +60,8 @@ public class SpheroController
     
     public void runCommands()
     {
-    	if(commandList.size()==0 || killCommand)
-    	{
-    		Log.v("KILL", "Terminating with killCommand = " + killCommand);
-    		return;
-    	}
+    	Log.v("debug", "isReady = " + isReady + " distanceTraveled = " + distanceTraveled);
+    	
     	String nextCommand = commandList.get(0)[0];
     	if(nextCommand.equalsIgnoreCase("color"))
     	{
@@ -77,7 +74,7 @@ public class SpheroController
     		calibrate();
     		Log.v("CALIBRATING", "Spero is ready and trying to calibrate with location x: " + lastLocation.getPositionX() + " y: " + lastLocation.getPositionY());
     	}
-    	else if(isReady&&distanceTraveled<1)
+    	else if(isReady && distanceTraveled<=1)
     	{
     		if(nextCommand.equalsIgnoreCase("arc"))
     		{
@@ -117,12 +114,15 @@ public class SpheroController
     			commandList.remove(0);
     		}
     	}
-    	mHandler.postDelayed(new Runnable() {  //delay and loop
-            @Override
-            public void run() {
-            	runCommands();
-            }
-        }, 50);
+    	if(commandList.size()>0 && !killCommand)
+    	{
+	    	mHandler.postDelayed(new Runnable() {  //delay and loop
+	            @Override
+	            public void run() {
+	            	runCommands();
+	            }
+	        }, 50);
+    	}
     }
     
     public void updateLastLocation(LocatorData location)
