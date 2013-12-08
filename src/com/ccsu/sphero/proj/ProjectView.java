@@ -264,6 +264,7 @@ public class ProjectView extends Activity
     	super.onResume();
         // Refresh list of Spheros
         mSpheroConnectionView.showSpheros();
+        spheroController = new SpheroController();
     }
     
     /**
@@ -275,6 +276,7 @@ public class ProjectView extends Activity
     	// Disconnect Robot properly
     	DeviceMessenger.getInstance().removeAsyncDataListener(mRobot, mDataListener);
     	RobotProvider.getDefaultProvider().disconnectControlledRobots();
+    	spheroController.sendKillCommand();
     }
     
     
