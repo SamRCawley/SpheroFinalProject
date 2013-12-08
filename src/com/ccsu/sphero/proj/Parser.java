@@ -13,14 +13,14 @@ public class Parser{
   private void accept(byte expectedKind) {
     if (currentToken.kind == expectedKind)
     {
-        if(currentToken.line == line)
+        /*if(currentToken.line == line)
             currOut+= currentToken.spelling;
         else
         {
             System.out.println(currOut);
             line++;
             currOut = "\t" + currentToken.spelling;
-        }
+        }*/
         acceptIt();
     }  
     else

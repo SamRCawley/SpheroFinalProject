@@ -19,7 +19,7 @@ public class Scanner{
         currentChar = (char)i;
     }
     catch(IOException e){
-        System.out.println(e);
+        new Error(e.toString(),-1);
     }
   }
 
@@ -33,7 +33,7 @@ public class Scanner{
         currentChar = (char)i;
     }
     catch(IOException e){
-        System.out.println(e);
+    	new Error(e.toString(),-1);
     }
   }
 
@@ -46,7 +46,7 @@ public class Scanner{
         currentChar = (char)i;
     }
     catch(IOException e){
-        System.out.println(e);
+    	new Error(e.toString(),-1);
     }
   }
 
