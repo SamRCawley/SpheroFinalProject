@@ -12,9 +12,11 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import orbotix.robot.base.*;
 
+import orbotix.robot.sensor.AccelerometerData;
 import orbotix.robot.sensor.LocatorData;
 
 public class SpheroController
@@ -41,6 +43,11 @@ public class SpheroController
 	private String saveKey = "savedScript";
 	private String prefsName = "SpheroProject";
 	boolean killCommand = false;
+	double prevDistanceTraveled = 0;
+	int idleCycles = 0;
+	Long timeIdle;
+	boolean isRunning = false;
+	Context context;
     /**
      * The Sphero Connection View
      */
@@ -60,7 +67,7 @@ public class SpheroController
     
     public void runCommands()
     {
-    	Log.v("debug", "isReady = " + isReady + " distanceTraveled = " + distanceTraveled);
+    	//Log.v("debug", "isReady = " + isReady + " distanceTraveled = " + distanceTraveled);
     	
     	String nextCommand = commandList.get(0)[0];
     	if(nextCommand.equalsIgnoreCase("color"))
@@ -123,19 +130,52 @@ public class SpheroController
 	            }
 	        }, 50);
     	}
+    	else //Script end cleanup
+    	{
+    		isRunning = false;
+    		isReady = true;
+    		if(commandList.size()==0)
+    		{
+	    		Toast toast = Toast.makeText(context, "Script Completed", Toast.LENGTH_SHORT);
+				toast.show();
+    		}
+    		else
+    		{
+    			Toast toast = Toast.makeText(context, "Script Terminated", Toast.LENGTH_SHORT);
+				toast.show();
+    		}
+    	}
     }
     
     public void updateLastLocation(LocatorData location)
     {
         lastLocation = location;
-        distanceLogic();
-
+        if(isRunning)
+        {
+        	distanceLogic();
+        }
     }
     
     private void distanceLogic()
     {
         distanceTraveled = Math.sqrt(lastLocation.getPositionX()*lastLocation.getPositionX()
         		+lastLocation.getPositionY()*lastLocation.getPositionY());
+        if(Math.abs(distanceTraveled - prevDistanceTraveled) < 1)
+        {
+        	if((System.currentTimeMillis() - timeIdle) > 7000)  //If hasn't moved more than 1cm in 10 seconds then stop and do next command
+        	{
+        		RollCommand.sendStop(mRobot);
+            	Log.v("Idle", "Robot was idle, moving to next command");
+            	distanceTarget = 0;
+            	distanceTraveled = 0;
+            	isReady = true;
+        	}
+        }
+        else
+        {
+        	prevDistanceTraveled = distanceTraveled;
+        	timeIdle = System.currentTimeMillis();
+        }
         //Log.v("Position", "X="+lastLocation.getPositionX()+"    Y="+lastLocation.getPositionY());
         //Log.v("Distance", "Distance Traveled = "+distanceTraveled + " Target = " + distanceTarget);
         float distanceRemaining = (float) (distanceTarget-distanceTraveled);
@@ -144,7 +184,7 @@ public class SpheroController
         {
         	if(speed > distanceRemaining/30)							//at 30 cm to destination begin slowing down
         	{
-        		Log.v("CALIBRATING", "Reducing speed because distanceRemaining: " + distanceRemaining);
+        		Log.v("Speed", "Reducing speed because distanceRemaining: " + distanceRemaining);
         		float reducedSpeed = distanceRemaining/30;
         		if(reducedSpeed > .2)									   //limit reduced speed to 20% (adjust if necessary)
         			RollCommand.sendCommand(mRobot, 0, reducedSpeed);
@@ -257,8 +297,9 @@ public class SpheroController
     	   	
     }
     
-    public void runScript(String script, TextView tvErrors, Robot mRobot)
+    public void runScript(String script, TextView tvErrors, Robot mRobot, Context context)
     {
+    	this.context = context;
     	this.mRobot = mRobot;
     	tvErrors.setText(" ");
     	try{
@@ -277,6 +318,8 @@ public class SpheroController
 	    		commandList.add(commandParams);
 	    	}
 	    	killCommand = false;
+	    	isRunning = true;
+	    	timeIdle = System.currentTimeMillis();
 	    	runCommands();
     	}
     	catch(Exception e){
@@ -304,6 +347,7 @@ public class SpheroController
     public void sendKillCommand()
     {
     	killCommand = true;
+    	isRunning = false;
     }
 }
 

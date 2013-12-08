@@ -24,6 +24,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import orbotix.robot.base.*;
+import orbotix.robot.sensor.AccelerometerData;
 import orbotix.robot.sensor.AttitudeData;
 import orbotix.robot.sensor.DeviceSensorsData;
 import orbotix.robot.sensor.LocatorData;
@@ -88,8 +89,10 @@ public class ProjectView extends Activity
                         	spheroController.updateLastLocation(locatorData);
                             
                         }
+                        
                     }
                 }
+            
             }
         }
     };
@@ -216,7 +219,17 @@ public class ProjectView extends Activity
 
 		@Override
 		public void onClick(View btn) {
-			spheroController.runScript(etScript.getText().toString(), tvErrors, mRobot);
+			if(!ledOn)
+			{
+				spheroController.runScript(etScript.getText().toString(), tvErrors, mRobot, getApplicationContext());
+				Toast toast = Toast.makeText(getApplicationContext(), "Script Started", Toast.LENGTH_SHORT);
+				toast.show();
+				
+			}
+			else{
+				Toast toast = Toast.makeText(getApplicationContext(), "Positioning must be off", Toast.LENGTH_SHORT);
+				toast.show();
+			}
 		}
     };
     
@@ -233,6 +246,8 @@ public class ProjectView extends Activity
 		@Override
 		public void onClick(View arg0) {
 			spheroController.saveScript(getApplicationContext(), etScript.getText().toString());
+			Toast toast = Toast.makeText(getApplicationContext(), "Script Saved", Toast.LENGTH_SHORT);
+			toast.show();
 		}
     	
     };
@@ -277,6 +292,7 @@ public class ProjectView extends Activity
     	DeviceMessenger.getInstance().removeAsyncDataListener(mRobot, mDataListener);
     	RobotProvider.getDefaultProvider().disconnectControlledRobots();
     	spheroController.sendKillCommand();
+    	spheroController = null;
     }
     
     
@@ -285,8 +301,7 @@ public class ProjectView extends Activity
         if(mRobot != null){
 
             // Set up a bitmask containing the sensor information we want to stream
-            final long mask = SetDataStreamingCommand.DATA_STREAMING_MASK_ACCELEROMETER_FILTERED_ALL |
-                    SetDataStreamingCommand.DATA_STREAMING_MASK_IMU_ANGLES_FILTERED_ALL | SetDataStreamingCommand.DATA_STREAMING_MASK_LOCATOR_ALL;
+            final long mask = SetDataStreamingCommand.DATA_STREAMING_MASK_IMU_ANGLES_FILTERED_ALL | SetDataStreamingCommand.DATA_STREAMING_MASK_LOCATOR_ALL;
 
             // Specify a divisor. The frequency of responses that will be sent is 400hz divided by this divisor.
             final int divisor = 40;
