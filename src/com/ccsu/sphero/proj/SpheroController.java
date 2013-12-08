@@ -280,7 +280,7 @@ public class SpheroController
 	    	runCommands();
     	}
     	catch(Exception e){
-    		tvErrors.setText(e.toString());
+    		tvErrors.setText(e.getMessage());
     	}
     	
     }

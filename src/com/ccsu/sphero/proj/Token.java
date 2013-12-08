@@ -25,5 +25,6 @@ public class Token {
   SEMI = 7, 
   COMMA = 8,
   NEG = 9,
-  EOT = 10;
+  EOT = 10,
+  OTHER = 11;
 }

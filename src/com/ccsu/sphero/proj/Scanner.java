@@ -95,7 +95,7 @@ public class Scanner{
               else if(currentSpelling.toString().equalsIgnoreCase("Arc"))
                   return Token.ARC;
               else
-                  return Token.EOT;
+                  return Token.OTHER;
           }
           else if(currentChar == '-')
           {

@@ -13,19 +13,33 @@ public class Parser{
   private void accept(byte expectedKind) throws Exception {
     if (currentToken.kind == expectedKind)
     {
-        /*if(currentToken.line == line)
-            currOut+= currentToken.spelling;
-        else
-        {
-            System.out.println(currOut);
-            line++;
-            currOut = "\t" + currentToken.spelling;
-        }*/
         acceptIt();
     }  
     else
       throw new Exception("Syntax error: '" + currentToken.spelling + "' is not expected at line: " + currentToken.line);
   }
+  
+  private void accept(byte expectedKind, float rangeMin, float rangeMax) throws Exception {
+	    if (currentToken.kind == expectedKind)
+	    {
+	    	if(Float.parseFloat(currentToken.spelling) >= rangeMin && Float.parseFloat(currentToken.spelling) <= rangeMax)
+	        	acceptIt();
+	        else throw new Exception("Syntax error: '" + currentToken.spelling + "' is out of range at line: " + currentToken.line);
+	    }  
+	    else
+	      throw new Exception("Syntax error: '" + currentToken.spelling + "' is not expected at line: " + currentToken.line);
+	  }
+  
+  private void accept(byte expectedKind, int rangeMin, int rangeMax) throws Exception {
+	    if (currentToken.kind == expectedKind)
+	    {
+	        if(Integer.parseInt(currentToken.spelling) >= rangeMin && Integer.parseInt(currentToken.spelling) <= rangeMax)
+	        	acceptIt();
+	        else throw new Exception("Syntax error: '" + currentToken.spelling + "' is out of range at line: " + currentToken.line);
+	    }  
+	    else
+	      throw new Exception("Syntax error: '" + currentToken.spelling + "' is not expected at line: " + currentToken.line);
+	  }
 
   private void acceptIt() {
     currentToken = scanner.scan();
@@ -71,6 +85,10 @@ public class Parser{
       {
         parseArc();
       }
+      else if(currentToken.kind == Token.OTHER)
+      {
+    	  throw new Exception("Unrecognized " + currentToken.spelling +" at line: " + currentToken.line);
+      }
       else
       {
           statementloop = false;
@@ -82,66 +100,28 @@ public class Parser{
       accept(Token.COLOR);
       for(int i = 0; i < 3; i++)
       {
-          int color = Integer.parseInt(currentToken.spelling);
-          if(color >= 0 && color <=255)
-          {
-            accept(Token.NUMBER);
-          }
-          else
-            throw new Exception("Parameter Error " + currentToken.spelling + " is not expected at line: " + currentToken.line);
+    	  accept(Token.NUMBER, 0, 255);
       }
    }
    
    private void parseRoll() throws Exception
    {
       accept(Token.ROLL);
-      float distance = Float.parseFloat(currentToken.spelling);
-      if(distance >= 0)
-      {
-         accept(Token.NUMBER);
-      }
-      else
-         throw new Exception("Parameter Error " + currentToken.spelling + " is not expected at line: " + currentToken.line);
-      float speed = Float.parseFloat(currentToken.spelling);
-      if(speed >= 0 && speed <= 1)
-      {
-         accept(Token.NUMBER);
-      }
-      else
-         throw new Exception("Parameter Error " + currentToken.spelling + " is not expected at line: " + currentToken.line);
+	  accept(Token.NUMBER, 0f, Float.MAX_VALUE);
+      accept(Token.NUMBER, 0f, 1f);
    }
    
    private void parseTurn() throws Exception
    {
       accept(Token.TURN);
-      int angle = Integer.parseInt(currentToken.spelling);
-      if(angle <=360 && angle >=-360)
-        accept(Token.NUMBER);
+	  accept(Token.NUMBER, -360, 360);
    }
    
    private void parseArc() throws Exception
    {
       accept(Token.ARC);
-      float radius = Float.parseFloat(currentToken.spelling);
-      if(radius >= 0)
-      {
-         accept(Token.NUMBER);
-      }
-      else
-         throw new Exception("Parameter Error " + currentToken.spelling + " is not expected at line: " + currentToken.line);
-      int angle = Integer.parseInt(currentToken.spelling);
-      if(angle <=360 && angle >=-360)
-      {
-         accept(Token.NUMBER);
-      }
-      else
-         throw new Exception("Parameter Error " + currentToken.spelling + " is not expected at line: " + currentToken.line);
-      float speed = Float.parseFloat(currentToken.spelling);
-      if(speed >= 0)
-      {
-         accept(Token.NUMBER);
-      }
-      else
-         throw new Exception("Parameter Error " + currentToken.spelling + " is not expected at line:" + currentToken.line);
+      accept(Token.NUMBER, 0f, Float.MAX_VALUE);
+      accept(Token.NUMBER, -360, 360);
+      accept(Token.NUMBER, 0, Float.MAX_VALUE);
    }
 }
