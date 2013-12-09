@@ -215,6 +215,7 @@ public class SpheroController
     			if(turnsComplete==turnsForArc)
     			{
     				operation = null;
+    				calibrate();
     			}
     		}
         }
