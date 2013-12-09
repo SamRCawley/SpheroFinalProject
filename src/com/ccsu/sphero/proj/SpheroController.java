@@ -276,12 +276,15 @@ public class SpheroController
     
     public void Arc(float radius, int angle, float speed)
     {	
+    	if(speed>0.5)
+    		speed = 0.3f; //speeds above 0.3 are inaccurate
     	isReady = false;
     	calibrate();
     	partLength = minArcLength;
     	float length = (float) (angle*Math.PI*radius/180);
     	turnsForArc = (int) Math.ceil((length*100)/minArcLength);  //will result in 1 turn if length > minArcLength
-    	anglePart = (int)Math.ceil(angle*1.0/turnsForArc);
+    	int frictionLoss = 3;
+    	anglePart = (int)Math.ceil(angle*1.0/turnsForArc) + frictionLoss;
     	Log.v("ANGLE of ARC", " "+anglePart);
     	Log.v("Turns for Arc", " "+turnsForArc);
     	operation = "arc";
