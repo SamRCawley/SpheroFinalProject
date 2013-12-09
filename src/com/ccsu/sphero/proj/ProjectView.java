@@ -304,7 +304,7 @@ public class ProjectView extends Activity
             final long mask = SetDataStreamingCommand.DATA_STREAMING_MASK_IMU_ANGLES_FILTERED_ALL | SetDataStreamingCommand.DATA_STREAMING_MASK_LOCATOR_ALL;
 
             // Specify a divisor. The frequency of responses that will be sent is 400hz divided by this divisor.
-            final int divisor = 40;
+            final int divisor = 10;
 
             // Specify the number of frames that will be in each response. You can use a higher number to "save up" responses
             // and send them at once with a lower frequency, but more packets per response.

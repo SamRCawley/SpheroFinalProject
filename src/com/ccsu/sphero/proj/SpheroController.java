@@ -117,6 +117,7 @@ public class SpheroController
     		else if(nextCommand.equalsIgnoreCase("turn"))
     		{
     			Log.v("Command", "Turn begin");
+    			calibrate();
     			Turn(Integer.parseInt(commandList.get(0)[1]));
     			commandList.remove(0);
     		}
@@ -180,13 +181,13 @@ public class SpheroController
         //Log.v("Position", "X="+lastLocation.getPositionX()+"    Y="+lastLocation.getPositionY());
         //Log.v("Distance", "Distance Traveled = "+distanceTraveled + " Target = " + distanceTarget);
         float distanceRemaining = (float) (distanceTarget-distanceTraveled);
-        
-        if(distanceTarget > 1 &&  distanceRemaining < 30)
+                
+        if(distanceTarget > 1 &&  distanceRemaining < 100)
         {
-        	if(speed > distanceRemaining/30)							//at 30 cm to destination begin slowing down
+        	if(speed > distanceRemaining/100)							//at 100 cm to destination begin slowing down
         	{
         		Log.v("Speed", "Reducing speed because distanceRemaining: " + distanceRemaining);
-        		float reducedSpeed = distanceRemaining/30;
+        		float reducedSpeed = distanceRemaining/100;
         		if(reducedSpeed > .2)									   //limit reduced speed to 20% (adjust if necessary)
         			RollCommand.sendCommand(mRobot, 0, reducedSpeed);
         	}
@@ -216,7 +217,6 @@ public class SpheroController
     			if(turnsComplete==turnsForArc)
     			{
     				operation = null;
-    				calibrate();
     			}
     		}
         }
@@ -251,8 +251,11 @@ public class SpheroController
     {
     	final boolean oldStatus = isReady;
     	isReady = false;
-    	int adjustment = 3; //adjustment for angle loss occurring
-    	angle += adjustment;
+    	//int adjustment = 7; //adjustment for angle loss occurring
+    	//if(angle>0)
+    	//	angle+= adjustment;
+    	//if(angle<0)
+    	//	angle-= adjustment;
     	SetHeadingCommand.sendCommand(mRobot, angle);
     	mHandler.postDelayed(new Runnable() {  //delay and loop
             @Override
