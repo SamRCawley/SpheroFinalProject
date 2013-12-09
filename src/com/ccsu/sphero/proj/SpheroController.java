@@ -197,6 +197,7 @@ public class SpheroController
         	Log.v("Stop", "Stop was called, roll complete");
         	distanceTarget = 0;
         	distanceTraveled = 0;
+        	calibrate();
         	mHandler.postDelayed(new Runnable() {  //delay and loop
                 @Override
                 public void run() {
