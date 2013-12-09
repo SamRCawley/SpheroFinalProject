@@ -277,11 +277,12 @@ public class SpheroController
     	calibrate();
     	partLength = minArcLength;
     	float length = (float) (angle*Math.PI*radius/180);
-    	turnsForArc = (int) ((length*100)/minArcLength)+1;  //will result in 1 turn if length > minArcLength
-    	anglePart = angle/turnsForArc;
+    	turnsForArc = (int) Math.ceil((length*100)/minArcLength);  //will result in 1 turn if length > minArcLength
+    	anglePart = (int)Math.ceil(angle*1.0/turnsForArc);
     	Log.v("ANGLE of ARC", " "+anglePart);
     	Log.v("Turns for Arc", " "+turnsForArc);
     	operation = "arc";
+    	
     	if(minArcLength > length*100)  //condition for turns less than 10cm
     	{
     		partLength = length*100;
