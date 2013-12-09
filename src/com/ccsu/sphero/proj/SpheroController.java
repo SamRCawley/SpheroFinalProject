@@ -276,8 +276,8 @@ public class SpheroController
     
     public void Arc(float radius, int angle, float speed)
     {	
-    	if(speed>0.5)
-    		speed = 0.3f; //speeds above 0.3 are inaccurate
+    	if(speed >= 0.3)
+    		speed = 0.3f; //speeds above 0.3 are inaccurate for arc
     	isReady = false;
     	calibrate();
     	partLength = minArcLength;

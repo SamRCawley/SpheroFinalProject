@@ -221,7 +221,7 @@ public class ProjectView extends Activity
 		public void onClick(View btn) {
 			if(!ledOn)
 			{
-				spheroController.runScript(etScript.getText().toString(), tvErrors, mRobot, getApplicationContext());
+				spheroController.runScript(etScript.getText().toString().trim(), tvErrors, mRobot, getApplicationContext());
 				Toast toast = Toast.makeText(getApplicationContext(), "Script Started", Toast.LENGTH_SHORT);
 				toast.show();
 				
