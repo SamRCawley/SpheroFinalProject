@@ -36,7 +36,7 @@ public class SpheroController
 	int anglePart = 0;
 	String operation = null;
 	boolean isReady = true;
-	int minArcLength = 20;
+	int minArcLength = 10;
 	float partLength = 0;
 	ArrayList<String[]> commandList = new ArrayList<String[]>();
 	SharedPreferences mySharedPrefs;
@@ -132,15 +132,16 @@ public class SpheroController
     	}
     	else //Script end cleanup
     	{
-    		isRunning = false;
-    		isReady = true;
-    		if(commandList.size()==0)
+    		if(commandList.size()==0 && isReady)
     		{
+    			isRunning = false;
 	    		Toast toast = Toast.makeText(context, "Script Completed", Toast.LENGTH_SHORT);
 				toast.show();
     		}
-    		else
+    		else if(killCommand)
     		{
+    			isRunning = false;
+        		isReady = true;
     			Toast toast = Toast.makeText(context, "Script Terminated", Toast.LENGTH_SHORT);
 				toast.show();
     		}
@@ -197,7 +198,6 @@ public class SpheroController
         	Log.v("Stop", "Stop was called, roll complete");
         	distanceTarget = 0;
         	distanceTraveled = 0;
-        	calibrate();
         	mHandler.postDelayed(new Runnable() {  //delay and loop
                 @Override
                 public void run() {
@@ -349,6 +349,7 @@ public class SpheroController
     
     public void sendKillCommand()
     {
+    	RollCommand.sendStop(mRobot);
     	killCommand = true;
     	isRunning = false;
     }
